@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mint NFT - Clash of the Titans</title>
+  <style>
+     body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: url('https://wallpapercave.com/wp/wp8221678.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      padding-top: 100px;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 15px #000;
+    }
+
+    button {
+      padding: 12px 24px;
+      margin-top: 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #1abc9c;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    img {
+      margin-top: 20px;
+      width: 250px;
+      border-radius: 8px;
+    }
+
+    .meta {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Mint Your Golden Axe</h2>
+    <p id="username"></p>
+    <p id="walletAddress"></p>
+
+    <button id="mintButton">Mint Golden Axe</button>
+    <button onclick="window.location.href='inventory.html'">View Inventory</button>
+    
+    <div class="meta" id="metadataSection" style="display:none;">
+      <h3>🎉 NFT Minted!</h3>
+      <img id="nftImage" />
+      <p><strong>Name:</strong> <span id="nftName"></span></p>
+      <p><strong>Description:</strong> <span id="nftDesc"></span></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ethers } from "ethers";
+    import abi from "../artifacts/contracts/GameAssets.sol/GameAssets.json";
+  
+    document.addEventListener("DOMContentLoaded", async () => {
+      const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+      const TOKEN_ID = 2;
+  
+      const wallet = sessionStorage.getItem("wallet");
+      const user = sessionStorage.getItem("user");
+  
+      document.getElementById("username").innerText = "Logged in as: " + (user || "unknown");
+      document.getElementById("walletAddress").innerText = "Connected to Wallet: " + (wallet || "Not connected");
+  
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi.abi, signer);
+  
+      const mintBtn = document.getElementById("mintButton");
+  
+      if (!mintBtn) {
+        console.error("❌ mintButton element not found in DOM");
+        return;
+      }
+  
+      mintBtn.addEventListener("click", async () => {
+        console.log("🟡 Mint button clicked");
+  
+        try {
+          const userAddress = await signer.getAddress();
+          console.log("🟢 Signer address:", userAddress);
+  
+          const tx = await contract.mintGoldenAxe(userAddress, 1);
+          console.log("🟢 Transaction sent:", tx.hash);
+  
+          await tx.wait();
+          console.log("✅ Transaction confirmed");
+  
+          const rawUri = await contract.uri(TOKEN_ID);
+          console.log("📦 Raw URI from contract:", rawUri);
+  
+          const resolvedUri = rawUri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/").replace("{id}", TOKEN_ID);
+          console.log("🔗 Resolved URI for fetch:", resolvedUri);
+  
+          const metadata = await fetch(resolvedUri).then(res => res.json());
+          console.log("📄 Metadata fetched:", metadata);
+  
+          document.getElementById("nftImage").src = metadata.image;
+          document.getElementById("nftName").innerText = metadata.name;
+          document.getElementById("nftDesc").innerText = metadata.description;
+          document.getElementById("metadataSection").style.display = "block";
+  
+        } catch (err) {
+          console.error("❌ Mint failed:", err);
+          alert("Mint failed: " + (err?.reason || err.message));
+        }
+      });
+    });
+  </script>  
+</body>
+</html>
+  

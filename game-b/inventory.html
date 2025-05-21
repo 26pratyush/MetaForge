@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Inventory - Clash of Titans</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: url('https://wallpapercave.com/wp/wp8221678.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      padding-top: 100px;
+    }
+
+    .inventory-box {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px black;
+      margin-bottom: 30px;
+    }
+
+    img {
+      margin-top: 10px;
+      width: 250px;
+      border-radius: 8px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Your Inventory</h2>
+  <p id="walletAddress"></p>
+  <div id="inventoryArea"></div>
+
+  <script type="module">
+    import { ethers } from "ethers";
+    import abi from "../artifacts/contracts/GameAssets.sol/GameAssets.json";
+
+    const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const TOKEN_IDS = [1, 2];
+    const wallet = sessionStorage.getItem("wallet");
+
+    document.getElementById("walletAddress").innerText = "Wallet: " + (wallet || "Not connected");
+
+    if (!wallet) {
+      alert("Please connect your wallet from mint page.");
+    } else {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi.abi, signer);
+      const inventoryArea = document.getElementById("inventoryArea");
+
+      for (const id of TOKEN_IDS) {
+        try {
+          const balance = await contract.balanceOf(wallet, id);
+          if (balance.toNumber() > 0) {
+            const rawUri = await contract.uri(id);
+            const resolvedUri = rawUri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/").replace("{id}", id);
+            const metadata = await fetch(resolvedUri).then(res => res.json());
+
+            const box = document.createElement("div");
+            box.className = "inventory-box";
+            box.innerHTML = `
+              <h3>${metadata.name} x ${balance}</h3>
+              <img src="${metadata.image}" alt="${metadata.name}" />
+              <p>${metadata.description}</p>
+              <ul>
+                ${metadata.attributes.map(attr => `<li><strong>${attr.trait_type}:</strong> ${attr.value}</li>`).join("")}
+              </ul>
+            `;
+            inventoryArea.appendChild(box);
+          }
+        } catch (err) {
+          console.error(`❌ Failed for token ID ${id}:`, err);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

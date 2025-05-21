@@ -1,0 +1,19 @@
+{
+    "name": "Epic Sword",
+    "description": "Forged in destiny, wielded by legends.",
+    "image": "https://www.swords24.eu/images/products/en/Frostmourne-World-of-Warcraft-Epic-Weapons-Sword_frostmourne.jpg",
+    "attributes": [
+      {
+        "trait_type": "Power",
+        "value": 100
+      },
+      {
+        "trait_type": "Durability",
+        "value": 80
+      },
+      {
+        "trait_type": "Level Required",
+        "value": 5
+      }
+    ]
+  }

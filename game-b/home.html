@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mortal Combat - Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: url('https://wallpapercave.com/wp/wp8221678.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      padding-top: 100px;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      display: inline-block;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      margin-top: 20px;
+      border: none;
+      background-color: #1abc9c;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    #walletAddress {
+      margin-top: 20px;
+      font-size: 14px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Clash of Titans</h1>
+    <p id="username"></p>
+
+    <button id="connectButton">Connect Wallet</button>
+    <p id="walletAddress"></p>
+  </div>
+
+  <script type="module">
+    // Display logged-in username
+    const user = sessionStorage.getItem("user");
+    document.getElementById("username").innerText = user ? `Logged in as: ${user}` : "Not logged in";
+    
+    document.getElementById("connectButton").addEventListener("click", async () => {
+       if (window.ethereum) {
+         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+         //document.getElementById("walletAddress").innerText = "Wallet Connected: " + accounts[0];
+
+         // ✅ Save wallet in session (optional)
+         sessionStorage.setItem("wallet", accounts[0]);
+
+         // ✅ Redirect to mint.html
+         window.location.href = "mint.html";
+        } else {
+            alert("Please install MetaMask!");
+        }
+    });
+  </script>
+</body>
+</html>

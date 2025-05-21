@@ -1,0 +1,19 @@
+{
+    "name": "Golden Axe",
+    "description": "A warrior’s legacy cast in gold.",
+    "image": "https://www.swords24.eu/images/products/en/Kit_Rae_Black_Legion_Battle_Axe_KR0022Bx.jpg",
+    "attributes": [
+      {
+        "trait_type": "Power",
+        "value": 200
+      },
+      {
+        "trait_type": "Durability",
+        "value": 50
+      },
+      {
+        "trait_type": "Level Required",
+        "value": 10
+      }
+    ]
+  }
